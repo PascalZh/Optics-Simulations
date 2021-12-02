@@ -7,7 +7,6 @@ transmission/scattering, and p=pump strength.
 
 @author: pascalzhang
 """
-
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import integrate

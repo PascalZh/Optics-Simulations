@@ -8,10 +8,10 @@ Created on Sun Nov  7 19:13:33 2021
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import exp, trapz, pi
-from matplotlib.widgets import Button, Slider
 from matplotlib import animation
 import matplotlib.lines as mlines
 from numba import prange, njit, jit
+from putils.plotutils import PlotUI_Sliders, SliderParam
 
 N = 1000
 lam = 1550e-9
@@ -40,18 +40,26 @@ def rand(*args):
     return np.random.randn(*args)
 
 
-u0_one = lambda: np.ones(shape=x.shape, dtype='complex128')
-u0_3th_poly = lambda: ((x / a * 1.5) ** 3).astype('complex128')
-u0_sin = lambda: (np.sin(x / a * 2 * np.pi)).astype('complex128')
-u0_x = lambda: (x / a).astype('complex128')
+def u0_one(): return np.ones(shape=x.shape, dtype='complex128')
+def u0_3th_poly(): return ((x / a * 1.5) ** 3).astype('complex128')
+def u0_sin(): return (np.sin(x / a * 2 * np.pi)).astype('complex128')
+def u0_x(): return (x / a).astype('complex128')
+
 
 u0 = u0_sin
 
 us = [u0(), u0()]
 
-fig = plt.figure('平行平面腔：自再现模', dpi=300, tight_layout=False)
-ax1 = fig.add_subplot(211)
-ax2 = fig.add_subplot(212)
+allowed_amplitudes = np.arange(500) + 1
+ui = PlotUI_Sliders(
+    2,
+    (SliderParam('a (λ)', allowed_amplitudes[0], allowed_amplitudes[-1], int(a / lam), valstep=allowed_amplitudes),
+     SliderParam('L (λ)', allowed_amplitudes[0], allowed_amplitudes[-1], int(L / lam), valstep=allowed_amplitudes)),
+    (),
+    num='平行平面腔：自再现模')
+
+ax1, ax2 = ui.axes[0:2]
+fig = ui.fig
 
 bbox_props = dict(boxstyle="round", fc="w", ec="0.5", alpha=0.9)
 
@@ -130,34 +138,14 @@ def suptitle():
 
 suptitle()
 
-plt.subplots_adjust(right=0.82)
-ax_z = plt.axes([0.86, 0.2, 0.03, 0.6], facecolor='lightgoldenrodyellow')
-ax_z2 = plt.axes([0.92, 0.2, 0.03, 0.6], facecolor='lightgoldenrodyellow')
-allowed_amplitudes = np.arange(500) + 1
-
-s_z = Slider(
-    ax_z, "a (λ)", allowed_amplitudes[0], allowed_amplitudes[-1],
-    valinit=int(a / lam),
-    valstep=allowed_amplitudes,
-    color="green",
-    orientation="vertical"
-)
-s_z2 = Slider(
-    ax_z2, "L (λ)", allowed_amplitudes[0], allowed_amplitudes[-1],
-    valinit=int(L / lam),
-    valstep=allowed_amplitudes,
-    color="green",
-    orientation="vertical"
-)
-
 
 def update(val):
     global a, us, xlim, x, iteration_equation, iter_cnt, artists_u0, L
     ani.pause()
 
     iter_cnt = 0
-    a = s_z.val * lam
-    L = s_z2.val * lam
+    a = ui.sliders[0].val * lam
+    L = ui.sliders[1].val * lam
     xlim = [-a, a]
     x = np.linspace(*xlim, N)
     ax1.set_xlim(xlim)
@@ -174,7 +162,6 @@ def update(val):
     ani.resume()
 
 
-s_z.on_changed(update)
-s_z2.on_changed(update)
+ui.on_changed(update)
 
 plt.show()
