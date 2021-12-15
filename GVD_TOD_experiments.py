@@ -12,7 +12,7 @@ from putils.plotutils import PlotUI_Sliders, SliderParam
 C = 0
 T0 = 1.2
 m = 3
-beta2 = 0.2
+beta2 = 0.
 beta3 = 0.
 
 LD = T0**2 / np.abs(beta2) if beta2 != 0. else float('inf')  # GVD length
@@ -29,36 +29,34 @@ freq = np.fft.fftfreq(T.shape[-1], d=1/fs)
 w = 2 * np.pi * freq
 
 
+def z_limits(): return min(LD, LD_, 200)
+
+
 def U(z):
     U0 = np.exp(- (1 + C * 1j)/2 * ((T/T0)**(2*m)))
 
     U0_ = np.fft.fft(U0)
-    dispersion = np.exp(1j / 2 * beta2*(w**2)*z + 1j / 6 * beta3 * (w**3)*z)
+    dispersion = np.exp(1j/2 * beta2 * (w**2)*z + 1j/6 * beta3 * (w**3)*z)
 
     return np.fft.ifft(U0_ * dispersion), U0_ * dispersion
 
 
 ui = PlotUI_Sliders(
     2,
-    (SliderParam("z", 0, 4 * min(LD, LD_), min(LD, LD_)), SliderParam("C", -10, 10, C)),
+    (SliderParam("z", 0, 4 * z_limits(), z_limits()), SliderParam("C", -10, 10, C)),
     (SliderParam("$\\beta_2$", -1, 1, beta2), SliderParam('$\\beta_3$', -1, 1, beta3))
 )
 ax1, ax2 = ui.axes[0:2]
 
 
-z = 0.
-sp, _ = U(z)
-
-
+sp, _ = U(0)
 l1, = ax1.plot(T, (sp * sp.conj()).real, label='$|U(0)|^2$')
 
 
 # Calculate U at z
-z = 1 * min(LD, LD_)
-sp, Uz_ = U(z)
-
-
+sp, Uz_ = U(z_limits())
 l2, = ax1.plot(T, (sp * sp.conj()).real, label='$|U(z)|^2$')
+
 ax1.legend()
 ax1.set_title(f"Time domain, $L_D$={LD}, $L'_D$ = {LD_}")
 ax1.set_ylim((-0.5, 1.5))
