@@ -113,7 +113,7 @@ def prepare_animation():
 
 
 ani = animation.FuncAnimation(
-    fig, prepare_animation(), frames=100, interval=1, repeat=True, blit=True)
+    fig, prepare_animation(), frames=10, interval=1, repeat=True, blit=True)
 
 ax1.set_xlim(xlim)
 ax1.set_ylim([-0.2, 1.2])
