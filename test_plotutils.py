@@ -1,3 +1,4 @@
+import sys; sys.path.append("./python-putils")
 from putils.plotutils import *
 
 ui1 = PlotUI_Sliders(

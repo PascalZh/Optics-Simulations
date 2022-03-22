@@ -4,7 +4,7 @@ Created on Tue Oct 19 11:39:43 2021
 
 @author: pascalzhang
 """
-
+import sys; sys.path.append("./python-putils")
 import numpy as np
 import matplotlib.pyplot as plt
 from putils.plotutils import PlotUI_Sliders, SliderParam

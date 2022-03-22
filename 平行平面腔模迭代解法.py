@@ -4,7 +4,7 @@ Created on Sun Nov  7 19:13:33 2021
 
 @author: pascalzhang
 """
-
+import sys; sys.path.append("./python-putils")
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import exp, trapz, pi
